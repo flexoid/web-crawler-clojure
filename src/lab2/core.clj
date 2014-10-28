@@ -15,26 +15,31 @@
   process-ok process-redirect process-not-found process-unknown-error
   extract-links filter-links)
 
-(defn crawl [url]
-  (let [[status content] (get-page url)]
-    (condp = status
-      :ok
-      (process-ok url content)
+(defn crawl
+  ([url max-depth]
+    (crawl url max-depth 0))
+  ([url max-depth current-depth]
+    (if (<= current-depth max-depth)
+        (let [[status content] (get-page url)]
+          (condp = status
+            :ok
+            (process-ok url content max-depth current-depth)
 
-      :redirect
-      (process-redirect url content)
+            :redirect
+            (process-redirect url content max-depth current-depth)
 
-      :not-found
-      (process-not-found url)
+            :not-found
+            (process-not-found url)
 
-      :unknown-error
-      (process-unknown-error url content))))
+            :unknown-error
+            (process-unknown-error url content)))
+        nil)))
 
-(defn process-ok [url, body]
-  (log url "ok")
+(defn process-ok [url body max-depth current-depth]
+  (log url "ok" current-depth)
   (let [parsed-body (html/html-resource (java.io.StringReader. body))
         links (extract-links parsed-body)]
-    (doseq [link links] (crawl link))))
+    (doseq [link links] (crawl link max-depth (inc current-depth)))))
 
 (defn extract-links [parsed-body]
   (let [a-tags (html/select parsed-body [:a])
@@ -47,9 +52,9 @@
     (filter #(identity %))
     (filter #(.startsWith % "http"))))
 
-(defn process-redirect [url, redirect-url]
-  (log url "redirect")
-  (crawl redirect-url))
+(defn process-redirect [url, redirect-url max-depth current-depth]
+  (log url "redirect" current-depth)
+  (crawl redirect-url max-depth (inc current-depth)))
 
 (defn process-not-found [url]
   (log url "404"))
@@ -74,18 +79,9 @@
       [:unknown-error status])))
 
 
-(defn log [url text]
-  (println url "->" text))
+(defn log [url text & rest]
+  (apply println url "->" text rest))
 
 (defn -main
-  [url]
-  (crawl url))
-
-
-; (def resp (client/get "https://twitter.com" {:follow-redirects false}))
-
-; (resp :status)
-; (get-in resp [:headers :location])
-
-; (def parsed-body (html/html-resource (java.io.StringReader. (resp :body))))
-; (map (fn [link] (get-in link [:attrs :href])) (html/select parsed-body [:a]))
+  [url max-depth]
+  (crawl url (Integer/parseInt max-depth)))
