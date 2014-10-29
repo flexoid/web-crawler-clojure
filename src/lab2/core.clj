@@ -1,6 +1,6 @@
 (ns lab2.core
   (:gen-class)
-  (:require [clj-http.client :as client]
+  (:require [org.httpkit.client :as http]
             [net.cgrand.enlive-html :as html]))
 
 ;;debugging parts of expressions
@@ -62,7 +62,7 @@
   (log url "unknown error"))
 
 (defn get-page [url]
-  (let [response (client/get url {:follow-redirects false :throw-exceptions false})
+  (let [response @(http/get url {:follow-redirects false :throw-exceptions false})
         status (response :status)]
     (cond
       (= http-ok status)
