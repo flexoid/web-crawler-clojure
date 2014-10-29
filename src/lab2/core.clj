@@ -19,7 +19,7 @@
   ([url max-depth]
     (crawl url max-depth 0))
   ([url max-depth current-depth]
-    (if (<= current-depth max-depth)
+    (when (<= current-depth max-depth)
         (let [[status content] (get-page url)]
           (condp = status
             :ok
@@ -32,8 +32,7 @@
             (process-not-found url)
 
             :unknown-error
-            (process-unknown-error url content)))
-        nil)))
+            (process-unknown-error url content))))))
 
 (defn process-ok [url body max-depth current-depth]
   (log url "ok" current-depth)
@@ -49,7 +48,7 @@
 
 (defn filter-links [links]
   (->> links
-    (filter #(identity %))
+    (filter identity)
     (filter #(.startsWith % "http"))))
 
 (defn process-redirect [url, redirect-url max-depth current-depth]
