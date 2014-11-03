@@ -1,7 +1,8 @@
 (ns lab2.core
   (:gen-class)
   (:require [org.httpkit.client :as http]
-            [net.cgrand.enlive-html :as html]))
+            [net.cgrand.enlive-html :as html]
+            [clojurewerkz.urly.core :as urly]))
 
 ;;debugging parts of expressions
 (defmacro dbg[x] `(let [x# ~x] (println "dbg:" '~x "=" x#) x#))

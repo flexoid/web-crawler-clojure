@@ -6,7 +6,8 @@
   :dependencies [
     [org.clojure/clojure "1.6.0"]
     [enlive "1.1.5"]
-    [http-kit "2.1.16"]]
+    [http-kit "2.1.16"]
+    [clojurewerkz/urly "1.0.0"]]
   :main ^:skip-aot lab2.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
