@@ -1,6 +1,7 @@
 (ns lab2.core
   (:gen-class)
-  (:require [org.httpkit.client :as http]
+  (:require [lab2.log :as log]
+            [org.httpkit.client :as http]
             [net.cgrand.enlive-html :as html]
             [clojurewerkz.urly.core :as urly]))
 
