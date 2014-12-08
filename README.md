@@ -2,9 +2,15 @@
 
 ### Examples
 
-    $ lein run http://stackoverflow.com 2
-    $ lein run http://github.com 3
-    $ lein run http://redis.io 3
+    $ cat samples/sites.txt
+
+    http://stackoverflow.com
+    http://github.com
+    http://redis.io
+
+
+    $ lein run samples/sites.txt 2
+      ......
 
 ### Run specs
 

@@ -108,9 +108,17 @@
 (defn add-log [log url & rest]
   (logger/add-record (apply str url " -> " rest) log))
 
+(defn read-urls-from-file [path]
+  {:pre [(not (nil? path))]}
+  (with-open [r (clojure.java.io/reader path)]
+    (doall (line-seq r))))
+
 (defn -main
-  [url max-depth]
-  (let [crawl-log (logger/init-log)]
-      (crawl crawl-log url (Integer/parseInt max-depth))
-      (logger/print-tree crawl-log)
-      (shutdown-agents)))
+  [file max-depth]
+  (let [crawl-log (logger/init-log)
+        urls (read-urls-from-file file)
+        max-depth (Integer/parseInt max-depth)]
+    (doall (pmap (fn [url]
+      (crawl crawl-log url max-depth)) urls))
+    (logger/print-tree crawl-log)
+    (shutdown-agents)))
