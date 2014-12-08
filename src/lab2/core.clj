@@ -1,6 +1,6 @@
 (ns lab2.core
   (:gen-class)
-  (:require [lab2.log :as log]
+  (:require [lab2.logger :as logger]
             [org.httpkit.client :as http]
             [net.cgrand.enlive-html :as html]
             [clojurewerkz.urly.core :as urly]))
@@ -13,34 +13,46 @@
 (def http-ok 200)
 (def http-not-found 404)
 
-(declare get-page log
+(def printer (agent nil))
+
+(declare get-page print-log print-progress add-log
   process-ok process-redirect process-not-found process-unknown-error
   extract-links filter-links)
 
 (defn crawl
-  ([url max-depth]
-    (crawl url max-depth 0))
-  ([url max-depth current-depth]
+  ([log url max-depth]
+    (crawl log url max-depth 0))
+  ([log url max-depth current-depth]
     (when (<= current-depth max-depth)
         (let [[status content] (get-page url)]
+          (print-progress)
           (condp = status
             :ok
-            (process-ok url content max-depth current-depth)
+            (let [[log links] (process-ok log url content max-depth current-depth)]
+              (doall
+                (pmap
+                  (fn [link]
+                    (crawl log link max-depth (inc current-depth)))
+                  links)))
 
             :redirect
-            (process-redirect url content max-depth current-depth)
+            (process-redirect log url content max-depth current-depth)
 
             :not-found
-            (process-not-found url)
+            (process-not-found log url)
 
             :unknown-error
-            (process-unknown-error url content))))))
+            (process-unknown-error log url content))))))
 
-(defn process-ok [url body max-depth current-depth]
-  (log url "ok" current-depth)
-  (let [parsed-body (html/html-resource (java.io.StringReader. body))
-        links (extract-links parsed-body)]
-    (doseq [link links] (crawl link max-depth (inc current-depth)))))
+(defn process-ok [log url body max-depth current-depth]
+  (try
+    (let [parsed-body (html/html-resource (java.io.StringReader. body))
+          links (extract-links parsed-body)
+          log (add-log log url "OK " (count links) " links")]
+      ; (print-log url " OK")
+      [log links])
+    (catch java.lang.ClassCastException e [log []])))
+
 
 (defn extract-links [parsed-body]
   (let [a-tags (html/select parsed-body [:a])
@@ -53,15 +65,15 @@
     (filter identity)
     (filter #(.startsWith % "http"))))
 
-(defn process-redirect [url, redirect-url max-depth current-depth]
-  (log url "redirect" current-depth)
-  (crawl redirect-url max-depth (inc current-depth)))
+(defn process-redirect [log url redirect-url max-depth current-depth]
+  (let [log (add-log log url "REDIRECT" " " redirect-url)]
+    (crawl log redirect-url max-depth (inc current-depth))))
 
-(defn process-not-found [url]
-  (log url "404"))
+(defn process-not-found [log url]
+  (add-log log url "404"))
 
-(defn process-unknown-error [url, status]
-  (log url "unknown error"))
+(defn process-unknown-error [log url status]
+  (add-log log url "UNKNOWN ERROR"))
 
 (defn get-page [url]
   (let [response @(http/get url {:follow-redirects false :throw-exceptions false})
@@ -79,10 +91,22 @@
       :else
       [:unknown-error status])))
 
+(defn print-progress []
+  (send printer
+    (fn [_]
+      (print ".")
+      (flush)
+      :ok)))
 
-(defn log [url text & rest]
-  (apply println url "->" text rest))
+(defn print-log [url text & rest]
+  (apply println url " -> " text rest))
+
+(defn add-log [log url & rest]
+  (logger/add-record (apply str url " -> " rest) log))
 
 (defn -main
   [url max-depth]
-  (crawl url (Integer/parseInt max-depth)))
+  (let [crawl-log (logger/init-log)]
+      (crawl crawl-log url (Integer/parseInt max-depth))
+      (logger/print-tree crawl-log)
+      (shutdown-agents)))
