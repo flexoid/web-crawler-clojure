@@ -48,6 +48,7 @@
   (try
     (let [parsed-body (html/html-resource (java.io.StringReader. body))
           links (extract-links parsed-body)
+          links (filter-links links)
           log (add-log log url "OK " (count links) " links")]
       ; (print-log url " OK")
       [log links])
@@ -56,8 +57,7 @@
 
 (defn extract-links [parsed-body]
   (let [a-tags (html/select parsed-body [:a])
-        links (map #(get-in % [:attrs :href]) a-tags)
-        links (filter-links links)]
+        links (map #(get-in % [:attrs :href]) a-tags)]
     links))
 
 (defn filter-links [links]
