@@ -21,7 +21,7 @@
 
 (defn crawl
   ([log url max-depth]
-    (crawl log url max-depth 0))
+    (crawl log url max-depth 1))
   ([log url max-depth current-depth]
     (when (<= current-depth max-depth)
         (let [[status content] (get-page url)]
@@ -69,11 +69,9 @@
     (filter #(.startsWith % "http"))))
 
 (defn process-redirect [log url redirect-url]
-  (let [url (first (filter-links [redirect-url]))]
-    (if url
-      (do
-        (add-log log url "REDIRECT" " " redirect-url)
-        [log url]))))
+  (let [redirect-url (first (filter-links [redirect-url]))]
+    (if redirect-url
+      [(add-log log url "REDIRECT" " " redirect-url) url])))
 
 (defn process-not-found [log url]
   (add-log log url "404"))

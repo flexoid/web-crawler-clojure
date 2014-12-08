@@ -1,13 +1,16 @@
-Simple web crawler
+## Simple web crawler
 
-    $ lein run http://github.com 2
-    $ lein run http://example.com 4
-    $ lein run http://redis.io 2
+### Examples
 
-## Run specs
+    $ lein run http://stackoverflow.com 2
+    $ lein run http://github.com 3
+    $ lein run http://redis.io 3
+
+### Run specs
 
     $ lein test
 
-## TODO
+### TODO
 
   * Add support of relative URLs
+  * Do not process repeating links
