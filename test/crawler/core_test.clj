@@ -1,6 +1,6 @@
-(ns lab2.core-test
+(ns crawler.core-test
   (:require [clojure.test :refer :all]
-            [lab2.core :refer :all]))
+            [crawler.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

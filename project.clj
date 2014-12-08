@@ -1,4 +1,4 @@
-(defproject lab2 "0.1.0-SNAPSHOT"
+(defproject crawler "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -8,6 +8,6 @@
     [enlive "1.1.5"]
     [http-kit "2.1.16"]
     [clojurewerkz/urly "1.0.0"]]
-  :main ^:skip-aot lab2.core
+  :main ^:skip-aot crawler.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})

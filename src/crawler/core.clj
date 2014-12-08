@@ -1,6 +1,6 @@
-(ns lab2.core
+(ns crawler.core
   (:gen-class)
-  (:require [lab2.logger :as logger]
+  (:require [crawler.logger :as logger]
             [org.httpkit.client :as http]
             [net.cgrand.enlive-html :as html]
             [clojurewerkz.urly.core :as urly]))

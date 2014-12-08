@@ -1,4 +1,4 @@
-(ns lab2.logger
+(ns crawler.logger
   (:gen-class))
 
 (declare make-node add-node)
