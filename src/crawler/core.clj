@@ -36,7 +36,10 @@
                   links)))
 
             :redirect
-            (process-redirect log url content max-depth current-depth)
+            (let [redirect-url content
+                  [log url] (process-redirect log url redirect-url)]
+              (if url
+                (recur log redirect-url max-depth (inc current-depth))))
 
             :not-found
             (process-not-found log url)
@@ -65,9 +68,12 @@
     (filter identity)
     (filter #(.startsWith % "http"))))
 
-(defn process-redirect [log url redirect-url max-depth current-depth]
-  (let [log (add-log log url "REDIRECT" " " redirect-url)]
-    (crawl log redirect-url max-depth (inc current-depth))))
+(defn process-redirect [log url redirect-url]
+  (let [url (first (filter-links [redirect-url]))]
+    (if url
+      (do
+        (add-log log url "REDIRECT" " " redirect-url)
+        [log url]))))
 
 (defn process-not-found [log url]
   (add-log log url "404"))
