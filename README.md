@@ -1,36 +1,13 @@
-# lab2
+Simple web crawler
 
-FIXME: description
+    $ lein run http://github.com 2
+    $ lein run http://example.com 4
+    $ lein run http://redis.io 2
 
-## Installation
+## Run specs
 
-Download from http://example.com/FIXME.
+    $ lein test
 
-## Usage
+## TODO
 
-FIXME: explanation
-
-    $ java -jar lab2-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
-
-## License
-
-Copyright © 2014 FIXME
-
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+  * Add support of relative URLs
